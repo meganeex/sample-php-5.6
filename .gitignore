@@ -4,6 +4,7 @@ composer.lock
 
 # Output files
 /output/*.pdf
+logs/*.log
 
 # IDE
 .idea/

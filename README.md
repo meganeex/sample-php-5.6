@@ -65,12 +65,21 @@ CSVデータ → データ解析 → グラフ生成 → PDFレポート生成 �
 
 ---
 
-## 4. 使用ライブラリ（PHP 5.6対応）
+## 4. 使用ライブラリ・フォント（PHP 5.6対応）
 
-| ライブラリ | 用途 | バージョン | PHP 5.6対応 |
+| ライブラリ/フォント | 用途 | バージョン | PHP 5.6対応 |
 |-----------|------|-----------|-----------|
 | **TCPDF** | PDF生成 | 6.2.x | ✅ 対応 |
 | **league/csv** | CSV処理 | 8.x | ✅ 対応 |
+| **Noto Serif CJK JP** | グラフの日本語表示 | Variable Font | ✅ 対応 |
+
+### フォントについて
+
+**ファイル**: `fonts/NotoSerifCJKjp-VF.ttf` (58MB)
+- **用途**: グラフの日本語テキスト表示（棒グラフ、折れ線グラフ、円グラフ）
+- **ライセンス**: SIL Open Font License（再配布可能）
+- **特徴**: プロジェクトに内包されているため、システムフォントのインストール不要
+- **対応環境**: Windows/macOS/Linux すべてで動作
 
 **注意**: PHP 5.6対応のバージョンを使用する必要があります。
 
@@ -314,6 +323,8 @@ try {
 ├── composer.json
 ├── data/
 │   └── sales_data.csv
+├── fonts/
+│   └── NotoSerifCJKjp-VF.ttf    # 日本語フォント（58MB）
 ├── output/
 │   └── report.pdf
 ├── src/
@@ -366,6 +377,8 @@ php5.6 /usr/local/bin/composer install
 ```bash
 composer install
 ```
+
+**注意**: 日本語フォント（NotoSerifCJKjp-VF.ttf）はプロジェクトに内包されているため、システムフォントのインストールは不要です。
 
 ### 3. 実行
 
@@ -484,6 +497,68 @@ PHP 5.6は公式サポートが終了しているため、本番環境では使�
 - [PHP 5.6 マニュアル](https://www.php.net/manual/ja/migration56.php)
 - [PHP 5.6 → 7.0 移行ガイド](https://www.php.net/manual/ja/migration70.php)
 - [PHP 7.0 → 8.0 移行ガイド](https://www.php.net/manual/ja/migration80.php)
+
+---
+
+## 17. 実行環境構築（WSL / Ubuntu）
+
+以下は WSL (Ubuntu) 上で PHP5.6 環境を整え、本プロジェクトを動かす最小手順です。
+
+1. リポジトリのルートへ移動
+   - cd /mnt/e/Dropbox/副業案件情報/案件/INTLOOP/アグレックス/2.Documents/sample-php-5.6
+
+2. PHP5.6 と必須拡張をインストール
+   - sudo apt-get update
+   - sudo apt-get install -y software-properties-common
+   - sudo add-apt-repository ppa:ondrej/php -y
+   - sudo apt-get update
+   - sudo apt-get install -y php5.6 php5.6-cli php5.6-gd php5.6-mbstring php5.6-xml php5.6-curl unzip
+
+3. Composer をインストール（未インストール時）
+   - curl -sS https://getcomposer.org/installer | php
+   - sudo mv composer.phar /usr/local/bin/composer
+
+4. 依存ライブラリをインストール
+   - composer install --ignore-platform-reqs
+   - （必要なら）composer require tecnickcom/tcpdf:"~6.2.0" --ignore-platform-reqs
+   - ※ TCPDF は PHP5.6 で動作する 6.2.x 系を使用すること
+
+5. 出力・ログディレクトリの作成と権限確認
+   - mkdir -p output logs
+   - chmod -R 775 output logs
+
+6. 実行
+   - php5.6 src/Main.php
+   - デバッグ情報を出す場合: DEBUG=1 php5.6 src/Main.php
+
+注意:
+- 実行時に使用する PHP が php5.6 であることを必ず確認（php5.6 -v）。
+- CLI と Apache/php-fpm で使用する php.ini が異なる場合あり（php5.6 --ini で確認）。
+- **日本語フォント**: システムフォントのインストールは不要です。プロジェクトの fonts/ ディレクトリに NotoSerifCJKjp-VF.ttf が含まれています。
+
+## 18. 実行環境構築（Windows）
+
+Windows 上で動かす場合のポイントです（PHP5.6 を導入済みとして記載）。
+
+1. PHP 5.6 をインストール（例: PHP公式 zip, XAMPP/WAMP の PHP5.6 等）
+2. php.ini で拡張を有効化
+   - extension=php_gd2.dll
+   - extension=php_mbstring.dll
+   - extension=php_curl.dll
+   - 必要に応じて extension_dir を設定
+3. Composer for Windows をインストール（https://getcomposer.org/）
+4. プロジェクトで依存をインストール
+   - composer install
+   - composer require tecnickcom/tcpdf:"~6.2.0"  ※ PHP5.6 対応版を使用
+5. 出力・ログディレクトリの作成と書込み権限確認（Explorer で確認）
+6. 実行
+   - コマンドプロンプト/PowerShell で: php -v を php5.6 に合わせる（PATH）
+   - php src\Main.php
+   - デバッグ: set DEBUG=1 & php src\Main.php
+
+注意:
+- Windows では DLL 名や php.ini の場所に注意。php -i で有効拡張を確認する。
+- **日本語フォント**: システムフォントのインストールは不要です。プロジェクトの fonts\ ディレクトリに NotoSerifCJKjp-VF.ttf が含まれており、Windows/macOS/Linux すべてで動作します。
 
 ---
 
