@@ -121,150 +121,7 @@ Main.php
 
 ---
 
-## 7. 実装例（PHP 5.6スタイル）
-
-### CSVReader.php
-
-```php
-<?php
-/**
- * CSV読み込みクラス
- */
-class CSVReader {
-    private $filePath;
-
-    /**
-     * コンストラクタ
-     *
-     * @param string $filePath CSVファイルパス
-     */
-    public function __construct($filePath) {
-        $this->filePath = $filePath;
-    }
-
-    /**
-     * CSVデータを読み込む
-     *
-     * @return array データ配列
-     */
-    public function read() {
-        $data = array();
-
-        if (!file_exists($this->filePath)) {
-            throw new Exception("File not found: {$this->filePath}");
-        }
-
-        $handle = fopen($this->filePath, 'r');
-        if ($handle === false) {
-            throw new Exception("Cannot open file: {$this->filePath}");
-        }
-
-        // ヘッダー行を読み込み
-        $headers = fgetcsv($handle);
-
-        // データ行を読み込み
-        while (($row = fgetcsv($handle)) !== false) {
-            $data[] = array_combine($headers, $row);
-        }
-
-        fclose($handle);
-
-        return $data;
-    }
-}
-```
-
-### DataAnalyzer.php
-
-```php
-<?php
-/**
- * データ分析クラス
- */
-class DataAnalyzer {
-    private $data;
-
-    /**
-     * コンストラクタ
-     *
-     * @param array $data 売上データ配列
-     */
-    public function __construct($data) {
-        $this->data = $data;
-    }
-
-    /**
-     * 総売上金額を計算する
-     *
-     * @return float 総売上金額
-     */
-    public function getTotalSales() {
-        $total = 0;
-        foreach ($this->data as $row) {
-            $total += (float)$row['売上金額'];
-        }
-        return $total;
-    }
-
-    /**
-     * 平均売上金額を計算する
-     *
-     * @return float 平均売上金額
-     */
-    public function getAverageSales() {
-        $count = count($this->data);
-        if ($count === 0) {
-            return 0;
-        }
-        return $this->getTotalSales() / $count;
-    }
-
-    /**
-     * 最高売上商品を取得する
-     *
-     * @return string 商品名
-     */
-    public function getTopProduct() {
-        $sales = array();
-
-        foreach ($this->data as $row) {
-            $product = $row['商品名'];
-            if (!isset($sales[$product])) {
-                $sales[$product] = 0;
-            }
-            $sales[$product] += (float)$row['売上金額'];
-        }
-
-        arsort($sales);
-        reset($sales);
-
-        return key($sales);
-    }
-
-    /**
-     * カテゴリ別売上を集計する
-     *
-     * @return array カテゴリ別売上配列
-     */
-    public function getSalesByCategory() {
-        $sales = array();
-
-        foreach ($this->data as $row) {
-            $category = $row['カテゴリ'];
-            if (!isset($sales[$category])) {
-                $sales[$category] = 0;
-            }
-            $sales[$category] += (float)$row['売上金額'];
-        }
-
-        return $sales;
-    }
-}
-```
-
----
-
-## 8. PHP 5.6 特有の書き方
+## 7. PHP 5.6 特有の書き方
 
 ### 型宣言なし
 
@@ -315,7 +172,7 @@ try {
 
 ---
 
-## 9. プロジェクト構成
+## 8. プロジェクト構成
 
 ```
 ./
@@ -337,7 +194,7 @@ try {
 
 ---
 
-## 10. composer.json（PHP 5.6対応）
+## 9. composer.json（PHP 5.6対応）
 
 ```json
 {
@@ -358,7 +215,7 @@ try {
 
 ---
 
-## 11. インストール手順
+## 10. インストール手順
 
 ### 1. PHP 5.6 の確認
 
@@ -388,109 +245,15 @@ php5.6 src/Main.php
 
 ---
 
-## 12. チームA での学習フロー
-
-### ステップ1: PHP 5.6版を理解する
-
-- PHP 5.6の制約を理解
-- 古い書き方（array(), 型宣言なし）を体験
-
-### ステップ2: PHP 8.3版を作成する
-
-- 型宣言を追加
-- 配列を短縮構文に変更
-- null合体演算子を活用
-
-### ステップ3: 比較・検証
-
-- 動作が同じことを確認
-- コードの可読性を比較
-- パフォーマンスを比較（オプション）
-
----
-
-## 13. PHP 5.6 → PHP 8.3 移行のポイント
-
-### 変更が必要な箇所
-
-| 項目 | PHP 5.6 | PHP 8.3 |
-|------|---------|---------|
-| 配列 | `array()` | `[]` |
-| 型宣言 | なし | 引数・戻り値に型を追加 |
-| null チェック | `isset() ? :` | `??` |
-| クラスプロパティ | 型なし | 型付き |
-
-### 移行例
-
-**PHP 5.6**:
-```php
-class DataAnalyzer {
-    private $data;
-
-    public function __construct($data) {
-        $this->data = $data;
-    }
-
-    public function getTotalSales() {
-        $total = 0;
-        foreach ($this->data as $row) {
-            $total += $row['売上金額'];
-        }
-        return $total;
-    }
-}
-```
-
-**PHP 8.3**:
-```php
-class DataAnalyzer {
-    private array $data;
-
-    public function __construct(array $data) {
-        $this->data = $data;
-    }
-
-    public function getTotalSales(): float {
-        $total = 0.0;
-        foreach ($this->data as $row) {
-            $total += (float)$row['売上金額'];
-        }
-        return $total;
-    }
-}
-```
-
----
-
-## 14. 学習目標
-
-| 目標 | 内容 |
-|------|------|
-| **PHP 5.6の理解** | 古い書き方、制約を理解する |
-| **移行スキル** | PHP 5.6 → 8.3 の移行手順を習得 |
-| **比較分析** | 新旧コードの違いを説明できる |
-| **動作保証** | 移行後も同じ動作をすることを確認 |
-
----
-
-## 15. 注意点
+## 11. 注意点
 
 ### PHP 5.6のサポート状況
 
-| 項目 | 状況 |
-|------|------|
-| **公式サポート** | 2018年末に終了 |
-| **セキュリティ更新** | なし |
-| **本番環境** | 使用非推奨 |
-| **学習目的** | ✅ OK |
-
-### セキュリティリスク
-
-PHP 5.6は公式サポートが終了しているため、本番環境では使用しないでください。このプロジェクトは**学習目的のみ**です。
+PHP 5.6は2018年末に公式サポートが終了しており、セキュリティ更新も提供されていません。本番環境での使用は推奨されません。
 
 ---
 
-## 16. 参考資料
+## 12. 参考資料
 
 ### PHP 5.6 ドキュメント
 
@@ -500,65 +263,200 @@ PHP 5.6は公式サポートが終了しているため、本番環境では使�
 
 ---
 
-## 17. 実行環境構築（WSL / Ubuntu）
+## 13. 必須環境・拡張モジュール（共通）
 
-以下は WSL (Ubuntu) 上で PHP5.6 環境を整え、本プロジェクトを動かす最小手順です。
+本プロジェクトは **Windows / macOS / Linux（WSL含む）** すべてで動作します。
 
-1. リポジトリのルートへ移動
-   - cd /mnt/e/Dropbox/副業案件情報/案件/INTLOOP/アグレックス/2.Documents/sample-php-5.6
+### 必須要件
 
-2. PHP5.6 と必須拡張をインストール
-   - sudo apt-get update
-   - sudo apt-get install -y software-properties-common
-   - sudo add-apt-repository ppa:ondrej/php -y
-   - sudo apt-get update
-   - sudo apt-get install -y php5.6 php5.6-cli php5.6-gd php5.6-mbstring php5.6-xml php5.6-curl unzip
+| 項目 | 必須/推奨 | 説明 |
+|------|----------|------|
+| **PHP 5.6** | 必須 | PHP 5.6.x 系 |
+| **mbstring 拡張** | 必須 | マルチバイト文字処理に必要。無効の場合はエラーで停止 |
+| **GD 拡張** | 推奨 | グラフ生成に必要。無効でもPDFは生成されるがグラフは表示されない |
+| **curl 拡張** | 推奨 | Composer での依存解決に必要 |
+| **Composer** | 必須 | 依存ライブラリのインストールに必要 |
 
-3. Composer をインストール（未インストール時）
-   - curl -sS https://getcomposer.org/installer | php
-   - sudo mv composer.phar /usr/local/bin/composer
+### 日本語フォントについて
 
-4. 依存ライブラリをインストール
-   - composer install --ignore-platform-reqs
-   - （必要なら）composer require tecnickcom/tcpdf:"~6.2.0" --ignore-platform-reqs
-   - ※ TCPDF は PHP5.6 で動作する 6.2.x 系を使用すること
+**システムフォントのインストールは不要です。**
 
-5. 出力・ログディレクトリの作成と権限確認
-   - mkdir -p output logs
-   - chmod -R 775 output logs
+プロジェクトの `fonts/` ディレクトリに `NotoSerifCJKjp-VF.ttf` が含まれており、グラフの日本語テキスト表示に使用されます。このフォントはプロジェクトに内包されているため、環境に依存せず動作します。
 
-6. 実行
-   - php5.6 src/Main.php
-   - デバッグ情報を出す場合: DEBUG=1 php5.6 src/Main.php
+### クロスプラットフォーム対応
 
-注意:
-- 実行時に使用する PHP が php5.6 であることを必ず確認（php5.6 -v）。
-- CLI と Apache/php-fpm で使用する php.ini が異なる場合あり（php5.6 --ini で確認）。
-- **日本語フォント**: システムフォントのインストールは不要です。プロジェクトの fonts/ ディレクトリに NotoSerifCJKjp-VF.ttf が含まれています。
+本プロジェクトは以下の点でクロスプラットフォーム対応されています：
+- パス区切り文字: `DIRECTORY_SEPARATOR` を使用
+- 一時ディレクトリ: `sys_get_temp_dir()` を使用
+- ファイルロック: `flock()` を使用（Windows/Linux 両対応）
+- OS固有のコード: 使用していません
 
-## 18. 実行環境構築（Windows）
+---
 
-Windows 上で動かす場合のポイントです（PHP5.6 を導入済みとして記載）。
+## 14. 実行環境構築（WSL / Ubuntu）
 
-1. PHP 5.6 をインストール（例: PHP公式 zip, XAMPP/WAMP の PHP5.6 等）
-2. php.ini で拡張を有効化
-   - extension=php_gd2.dll
-   - extension=php_mbstring.dll
-   - extension=php_curl.dll
-   - 必要に応じて extension_dir を設定
-3. Composer for Windows をインストール（https://getcomposer.org/）
-4. プロジェクトで依存をインストール
-   - composer install
-   - composer require tecnickcom/tcpdf:"~6.2.0"  ※ PHP5.6 対応版を使用
-5. 出力・ログディレクトリの作成と書込み権限確認（Explorer で確認）
-6. 実行
-   - コマンドプロンプト/PowerShell で: php -v を php5.6 に合わせる（PATH）
-   - php src\Main.php
-   - デバッグ: set DEBUG=1 & php src\Main.php
+以下は WSL (Ubuntu) 上で PHP5.6 環境を整え、本プロジェクトを動かす手順です。
 
-注意:
-- Windows では DLL 名や php.ini の場所に注意。php -i で有効拡張を確認する。
-- **日本語フォント**: システムフォントのインストールは不要です。プロジェクトの fonts\ ディレクトリに NotoSerifCJKjp-VF.ttf が含まれており、Windows/macOS/Linux すべてで動作します。
+### 1. PHP5.6 と必須拡張をインストール
+
+```bash
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt-get update
+sudo apt-get install -y php5.6 php5.6-cli php5.6-gd php5.6-mbstring php5.6-xml php5.6-curl unzip
+```
+
+### 2. インストール確認
+
+```bash
+php5.6 -v                    # バージョン確認
+php5.6 -m | grep -E "gd|mbstring"  # 拡張モジュール確認
+```
+
+### 3. Composer をインストール（未インストール時）
+
+```bash
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+### 4. 依存ライブラリをインストール
+
+```bash
+cd /path/to/sample-php-5.6
+composer install --ignore-platform-reqs
+```
+
+### 5. 出力・ログディレクトリの作成
+
+```bash
+mkdir -p output logs
+chmod -R 775 output logs
+```
+
+### 6. 実行
+
+```bash
+php5.6 src/Main.php
+# デバッグモード
+DEBUG=1 php5.6 src/Main.php
+```
+
+### 注意事項（WSL/Ubuntu）
+
+- 実行時に使用する PHP が php5.6 であることを確認: `php5.6 -v`
+- CLI と Apache/php-fpm で php.ini が異なる場合あり: `php5.6 --ini` で確認
+
+---
+
+## 15. 実行環境構築（Windows）
+
+Windows 上で PHP5.6 環境を整え、本プロジェクトを動かす手順です。
+
+### 1. PHP 5.6 をインストール
+
+以下のいずれかの方法でインストール：
+- PHP公式サイトから zip をダウンロード
+- XAMPP/WAMP の PHP5.6 を使用
+
+### 2. php.ini で拡張を有効化
+
+php.ini ファイルを編集し、以下の行のコメント（`;`）を外す：
+
+```ini
+; 必須
+extension=php_mbstring.dll
+
+; 推奨（グラフ生成に必要）
+extension=php_gd2.dll
+
+; 推奨（Composer用）
+extension=php_curl.dll
+
+; extension_dir の設定（必要に応じて）
+extension_dir = "ext"
+```
+
+### 3. インストール確認
+
+```cmd
+php -v
+php -m
+```
+
+`mbstring` と `gd` が表示されることを確認。
+
+### 4. Composer for Windows をインストール
+
+https://getcomposer.org/ からインストーラーをダウンロードして実行。
+
+### 5. 依存ライブラリをインストール
+
+```cmd
+cd C:\path\to\sample-php-5.6
+composer install
+```
+
+### 6. 出力・ログディレクトリの作成
+
+Explorer で `output` と `logs` フォルダが存在し、書き込み可能であることを確認。
+
+### 7. 実行
+
+```cmd
+php src\Main.php
+
+REM デバッグモード
+set DEBUG=1 & php src\Main.php
+```
+
+### 注意事項（Windows）
+
+- php.ini の場所: `php --ini` で確認
+- 有効な拡張の確認: `php -m` または `php -i | findstr mbstring`
+- PATH 環境変数に PHP のパスが含まれていることを確認
+
+---
+
+## 16. トラブルシューティング
+
+### mbstring が無効というエラーが出る
+
+**WSL/Ubuntu:**
+```bash
+sudo apt-get install php5.6-mbstring
+```
+
+**Windows:**
+php.ini で `extension=php_mbstring.dll` のコメントを外す。
+
+### グラフが表示されない
+
+GD 拡張が無効です。
+
+**WSL/Ubuntu:**
+```bash
+sudo apt-get install php5.6-gd
+```
+
+**Windows:**
+php.ini で `extension=php_gd2.dll` のコメントを外す。
+
+### フォントが見つからないエラー
+
+`fonts/NotoSerifCJKjp-VF.ttf` ファイルが存在することを確認してください。
+Git clone 時に LFS ファイルが取得できていない可能性があります。
+
+### 出力ディレクトリに書き込めない
+
+**WSL/Ubuntu:**
+```bash
+chmod -R 775 output logs
+```
+
+**Windows:**
+Explorer でフォルダのプロパティを確認し、読み取り専用を解除。
 
 ---
 
